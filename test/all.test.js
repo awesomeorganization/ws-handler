@@ -1,3 +1,5 @@
+/* eslint-disable node/no-unsupported-features/es-syntax */
+
 import WebSocket from 'ws'
 import { http } from '@awesomeorganization/servers'
 import { strictEqual } from 'assert'
@@ -25,23 +27,25 @@ const test = async () => {
       const url = `ws://${address}:${port}`
       const webSocket = new WebSocket(url)
       webSocket.on('open', () => {
-        while (pushQueue.length !== 0) {
-          push(pushQueue.shift())
-        }
+        push(pushQueue.shift())
       })
       webSocket.on('message', (message) => {
         strictEqual(message, chunksQueue.shift())
         if (chunksQueue.length === 0) {
           end()
+          webSocket.close(1e3)
           this.close()
+        }
+        if (pushQueue.length !== 0) {
+          push(pushQueue.shift())
         }
       })
     },
     onRequest(request, response) {
       response.end()
     },
-    async onUpgrade(request, socket, head) {
-      await handle({
+    onUpgrade(request, socket, head) {
+      handle({
         head,
         request,
         socket,

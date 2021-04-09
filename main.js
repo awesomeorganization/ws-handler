@@ -9,11 +9,17 @@ export const wsHandler = async () => {
     noServer: true,
   })
   const end = () => {
-    for (const [, client] of clients) {
-      client.terminate()
+    for (const client of clients.values()) {
+      if (client.readyState !== ws.default.OPEN) {
+        continue
+      }
+      client.close(1e3)
     }
   }
   const handle = ({ head, request, socket }) => {
+    if (request.aborted === true) {
+      return undefined
+    }
     return new Promise((resolve) => {
       server.handleUpgrade(request, socket, head, (webSocket) => {
         if (clientId === Number.MAX_SAFE_INTEGER) {
@@ -43,10 +49,15 @@ export const wsHandler = async () => {
       if (chunk instanceof Error) {
         return chunk // I THINK IT'S A GOOD IDEA TO HANDLE THE ERROR ON THE OTHER SIDE
       }
-    } else {
+    } else if (typeof data === 'string') {
       chunk = data.trim()
+    } else {
+      chunk = data
     }
-    for (const [, client] of clients) {
+    for (const client of clients.values()) {
+      if (client.readyState !== ws.default.OPEN) {
+        continue
+      }
       client.send(chunk)
     }
     return undefined

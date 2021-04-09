@@ -2,7 +2,8 @@
   "extends": ["eslint:recommended", "plugin:node/recommended", "prettier"],
   "env": {
     "es2021": true,
-    "node": true
+    "node": true,
+    "browser": true
   },
   "parserOptions": {
     "ecmaVersion": 2021,

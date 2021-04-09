@@ -1,7 +1,7 @@
 {
   "name": "@awesomeorganization/ws-handler",
   "description": "[ESM] The WebSocket (ws) handler for Node.js according to rfc6455, draft-ietf-hybi-thewebsocketprotocol-08 and draft-ietf-hybi-thewebsocketprotocol-13",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "exports": "./main.js",
   "type": "module",
   "repository": "github:awesomeorganization/ws-handler",
