@@ -1,5 +1,7 @@
 /* eslint-disable node/no-unsupported-features/es-syntax */
 
+const STATUS_NO_CONTENT = 204
+
 export const wsHandler = async () => {
   const ws = await import('ws')
   let clientId = 0

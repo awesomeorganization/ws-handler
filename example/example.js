@@ -34,25 +34,15 @@ const example = async () => {
     onRequest(request, response) {
       switch (request.method) {
         case 'GET': {
-          switch (request.url) {
-            case '/ws': {
-              break
-            }
-            default: {
-              rewriteMiddleware.handle({
-                request,
-                response,
-              })
-              if (response.writableEnded === true) {
-                return
-              }
-              staticMiddleware.handle({
-                request,
-                response,
-              })
-              return
-            }
-          }
+          rewriteMiddleware.handle({
+            request,
+            response,
+          })
+          staticMiddleware.handle({
+            request,
+            response,
+          })
+          return
         }
       }
       response.end()

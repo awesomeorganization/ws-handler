@@ -41,9 +41,6 @@ const test = async () => {
         }
       })
     },
-    onRequest(request, response) {
-      response.end()
-    },
     onUpgrade(request, socket, head) {
       handle({
         head,
