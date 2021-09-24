@@ -5,17 +5,9 @@ import { http } from '@awesomeorganization/servers'
 import { strictEqual } from 'assert'
 import { wsHandler } from '../main.js'
 
+const MESSAGE = 'message'
+
 const test = async () => {
-  const pushQueue = [
-    {
-      data: 'message',
-    },
-    {
-      data: 'message',
-      stringify: true,
-    },
-  ]
-  const chunksQueue = ['message', '"message"']
   const { end, handle, push } = await wsHandler()
   http({
     listenOptions: {
@@ -27,18 +19,14 @@ const test = async () => {
       const url = `ws://${address}:${port}`
       const webSocket = new WebSocket(url)
       webSocket.on('open', () => {
-        push(pushQueue.shift())
+        push({
+          message: MESSAGE,
+        })
       })
-      webSocket.on('message', (message) => {
-        strictEqual(message, chunksQueue.shift())
-        if (chunksQueue.length === 0) {
-          end()
-          webSocket.close(1e3)
-          this.close()
-        }
-        if (pushQueue.length !== 0) {
-          push(pushQueue.shift())
-        }
+      webSocket.once('message', (message) => {
+        strictEqual(message.toString(), MESSAGE)
+        end()
+        this.close()
       })
     },
     onUpgrade(request, socket, head) {

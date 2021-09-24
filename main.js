@@ -3,20 +3,21 @@
 const STATUS_NO_CONTENT = 204
 
 export const wsHandler = async () => {
-  const ws = await import('ws')
+  const { WebSocket, WebSocketServer } = await import('ws')
   let clientId = 0
   const clients = new Map()
-  const server = new ws.default.Server({
+  const server = new WebSocketServer({
     clientTracking: false,
     noServer: true,
   })
   const end = () => {
     for (const client of clients.values()) {
-      if (client.readyState !== ws.default.OPEN) {
+      if (client.readyState !== WebSocket.OPEN) {
         continue
       }
-      client.close(1e3)
+      client.terminate()
     }
+    server.close()
   }
   const handle = ({ head, request, socket }) => {
     if (request.aborted === true) {
@@ -40,27 +41,12 @@ export const wsHandler = async () => {
       })
     })
   }
-  const push = ({ data, stringify = false }) => {
-    let chunk
-    if (stringify === true) {
-      try {
-        chunk = JSON.stringify(data)
-      } catch (error) {
-        chunk = error
-      }
-      if (chunk instanceof Error) {
-        return chunk // I THINK IT'S A GOOD IDEA TO HANDLE THE ERROR ON THE OTHER SIDE
-      }
-    } else if (typeof data === 'string') {
-      chunk = data.trim()
-    } else {
-      chunk = data
-    }
+  const push = ({ message, options }) => {
     for (const client of clients.values()) {
-      if (client.readyState !== ws.default.OPEN) {
+      if (client.readyState !== WebSocket.OPEN) {
         continue
       }
-      client.send(chunk)
+      client.send(message, options)
     }
     return undefined
   }
